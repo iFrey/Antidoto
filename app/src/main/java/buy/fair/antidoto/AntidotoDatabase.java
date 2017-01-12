@@ -21,7 +21,7 @@ import java.io.OutputStream;
  */
 
 
-public class AntidotoDBHelper extends SQLiteOpenHelper {
+public class AntidotoDatabase extends SQLiteOpenHelper {
 
     //The Android's default system path of your application database.
     private static String PACKAGE = "buy.fair.antidoto";
@@ -34,7 +34,7 @@ public class AntidotoDBHelper extends SQLiteOpenHelper {
 
 
 
-    public AntidotoDBHelper(Context context) {
+    public AntidotoDatabase(Context context) {
         super(context, DB_NAME, null,1);
         this.adContext = context;
     }
@@ -165,13 +165,13 @@ public class AntidotoDBHelper extends SQLiteOpenHelper {
 
 
     /** Returns a JobDetailCursor for the specified jobId
-     * @param jobId The _id of the job
+     * @param barcode The barcode to check
      */
-    public checkRightCursor checkRight(long jobId) {
-        String sql = checkRightCursor.QUERY + jobId;
+    public checkBarcodeCursor checkBarcodeCursor(long barcode) {
+        String sql = checkBarcodeCursor.QUERY + barcode + ", elements.barcode ) > 0";
         SQLiteDatabase d = getReadableDatabase();
-        checkRightCursor c = (checkRightCursor) d.rawQueryWithFactory(
-                new checkRightCursor.Factory(),
+        checkBarcodeCursor c = (checkBarcodeCursor) d.rawQueryWithFactory(
+                new checkBarcodeCursor.Factory(),
                 sql,
                 null,
                 null);
@@ -180,20 +180,21 @@ public class AntidotoDBHelper extends SQLiteOpenHelper {
     }
 
     /**
-     * Provides self-contained query-specific cursor for Job Detail.
+     * Provides self-contained query-specific cursor for product/company and if its not fair.
      * The query and all Accessor methods are in the class.
      */
-    public static class checkRightCursor extends SQLiteCursor {
+    public static class checkBarcodeCursor extends SQLiteCursor {
         /** The query for this cursor */
         private static final String QUERY =
-                "SELECT jobs._id, employers._id, employers.website, title," +
-                        " description, start_time, end_time, employer_name, " +
-                        "contact_name, rating, street, city, state, zip, phone, " +
-                        "email, latitude, longitude, status FROM jobs, employers "+
-                        "WHERE jobs.employer_id = employers._id "+
-                        "AND jobs._id = ";
+                "SELECT reasons.name, reasons.description, reasons.url, elements.name," +
+                        " elements.description, elements.barcode"+
+                        "FROM camps, elements. reasons "+
+                        "WHERE  elements._id= camps._id "+
+                        "AND camps.search_type = 1 "+
+                        "AND camps.reason_id = reasons._id " +
+                        "AND instr( ";
         /** Cursor constructor */
-        private checkRightCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
+        private checkBarcodeCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
                                 String editTable, SQLiteQuery query) {
             super(db, driver, editTable, query);
         }
@@ -203,66 +204,16 @@ public class AntidotoDBHelper extends SQLiteOpenHelper {
             public Cursor newCursor(SQLiteDatabase db,
                                     SQLiteCursorDriver driver, String editTable,
                                     SQLiteQuery query) {
-                return new checkRightCursor(db, driver, editTable, query);
+                return new checkBarcodeCursor(db, driver, editTable, query);
             }
         }
         /* Accessor functions -- one per database column */
-        public long getColJobsId() {
-            return getLong(getColumnIndexOrThrow("jobs._id"));
-        }
-        public long getColEmployersId() {
-            return getLong(getColumnIndexOrThrow("employers._id"));
-        }
-        public String getColWebsite() {
-            return getString(getColumnIndexOrThrow("employers.website"));
-        }
-        public String getColTitle() {
-            return getString(getColumnIndexOrThrow("title"));
-        }
-        public String getColDescription() {
-            return getString(getColumnIndexOrThrow("description"));
-        }
-        public long getColStartTime() {
-            return getLong(getColumnIndexOrThrow("start_time"));
-        }
-        public long getColEndTime() {
-            return getLong(getColumnIndexOrThrow("end_time"));
-        }
-        public String getColEmployerName() {
-            return getString(getColumnIndexOrThrow("employer_name"));
-        }
-        public String getColContactName() {
-            return getString(getColumnIndexOrThrow("contact_name"));
-        }
-        public long getColRating() {
-            return getLong(getColumnIndexOrThrow("rating"));
-        }
-        public String getColStreet() {
-            return getString(getColumnIndexOrThrow("street"));
-        }
-        public String getColCity() {
-            return getString(getColumnIndexOrThrow("city"));
-        }
-        public String getColState() {
-            return getString(getColumnIndexOrThrow("state"));
-        }
-        public String getColZip(){
-            return getString(getColumnIndexOrThrow("zip"));
-        }
-        public String getColPhone() {
-            return getString(getColumnIndexOrThrow("phone"));
-        }
-        public String getColEmail(){
-            return getString(getColumnIndexOrThrow("email"));
-        }
-        public long getColLatitude() {
-            return getLong(getColumnIndexOrThrow("latitude"));
-        }
-        public long getColLongitude() {
-            return getLong(getColumnIndexOrThrow("longitude"));
-        }
-        public long getColStatus() {
-            return getLong(getColumnIndexOrThrow("status"));
-        }
+        //public long getColReasonsId() { return getLong(getColumnIndexOrThrow("reasons._id")); }
+        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reasons.name")); }
+        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reasons.description")); }
+        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reasons.url")); }
+        public String getColElementsName() { return getString(getColumnIndexOrThrow("elements.name")); }
+        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("elements.description")); }
+        public long getColElementsBarcode() { return getLong(getColumnIndexOrThrow("elements.barcode")); }
     }
 }

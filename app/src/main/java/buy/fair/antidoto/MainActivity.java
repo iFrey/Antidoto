@@ -35,6 +35,8 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
+        AntidotoDatabase db = new AntidotoDatabase(this);
+        AntidotoDatabase.checkBarcodeCursor cursor = db.checkBarcodeCursor(978156);
         if(result != null) {
             if(result.getContents() == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();

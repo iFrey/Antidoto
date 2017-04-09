@@ -1,6 +1,8 @@
 package buy.fair.antidoto;
 
 import android.content.Intent;
+import android.database.SQLException;
+import android.database.sqlite.SQLiteDatabase;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -9,6 +11,8 @@ import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
+
+import java.io.IOException;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -25,18 +29,34 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+
+        AntidotoDatabase db = new AntidotoDatabase(this);
+
+        //db.getReadableDatabase();
+        //Fast tests
+        AntidotoDatabase.checkBarcodeCursor cursor = db.checkBarcodeCursor(978156);
+        if (cursor.getCount()>0) {
+            Toast.makeText(this, "Ha encontrado algo en BD!", Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(this, "Pos no encontro nada :(", Toast.LENGTH_LONG).show();
+        }
+        AntidotoDatabase.checkBarcodeCursor cursor2 = db.checkBarcodeCursor(666666);
+        if (cursor2.getCount()>0) {
+            Toast.makeText(this, "Ha encontrado algo en BD, y no deberia", Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(this, "Pos no encontro nada, como deberia", Toast.LENGTH_LONG).show();
+        }
+
     }
 
     private void startScan(){
-        new IntentIntegrator(this).initiateScan(); // `this` is the current Activity
+        new IntentIntegrator(this).initiateScan();
     }
 
     // Get the results:
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
-        AntidotoDatabase db = new AntidotoDatabase(this);
-        AntidotoDatabase.checkBarcodeCursor cursor = db.checkBarcodeCursor(978156);
         if(result != null) {
             if(result.getContents() == null) {
                 Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();

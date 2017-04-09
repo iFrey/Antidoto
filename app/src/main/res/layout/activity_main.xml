@@ -12,18 +12,41 @@
     tools:context="buy.fair.antidoto.MainActivity">
 
     <Button
-        android:text="Scan"
+        android:id="@+id/buttonScan"
         android:layout_width="75dp"
         android:layout_height="75dp"
-        android:id="@+id/buttonScan"
+        android:layout_marginBottom="15dp"
         android:background="@drawable/round_button"
+        android:text="Scan"
         android:textColor="@color/zxing_status_text"
-        android:layout_marginLeft="19dp"
-        android:layout_marginStart="19dp"
         android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true" />
+
+    <Button
+        android:id="@+id/buttonSearch"
+        android:layout_width="75dp"
+        android:layout_height="75dp"
+        android:background="@drawable/round_button"
+        android:text="Search"
+        android:textColor="@color/zxing_status_text"
+        android:layout_marginRight="23dp"
+        android:layout_marginEnd="23dp"
+        android:layout_alignBottom="@+id/searchString"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentEnd="true" />
+
+    <EditText
+        android:id="@+id/searchString"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="33dp"
+        android:ems="10"
+        android:hint="What do you want to search"
+        android:inputType="textPersonName"
+        android:layout_toLeftOf="@+id/buttonSearch"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginBottom="13dp" />
+        android:layout_alignParentStart="true" />
 
 
 </RelativeLayout>

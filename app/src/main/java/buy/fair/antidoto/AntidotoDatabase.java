@@ -133,11 +133,11 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
     }
 
-    // Add your public helper methods to access and get content from the database.
-    // You could return cursors by doing "return myDataBase.query(....)" so it'd be easy
-    // to you to create adapters for your views.
 
 
+    /****************************************************************************************************************
+     ************************************* CURSOR BUSQUEDA DE BARCODES **********************************************
+     ***************************************************************************************************************/
 
     /** Returns a JobDetailCursor for the specified jobId
      * @param barcode The barcode to check
@@ -161,12 +161,9 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
     public static class checkBarcodeCursor extends SQLiteCursor {
         /** The query for this cursor */
         private static final String QUERY =
-                /*"SELECT reasons.name, reasons.description, reasons.url, elements.name," +
-                        " elements.description, elements.barcode"+*/
-                "SELECT reasons.*, elements.*"+
+                "SELECT reasons.*, elements.* "+
                         "FROM camps, elements, reasons "+
-                        "WHERE  elements._id= camps._id "+
-                        "AND camps.search_type = 1 "+
+                        "WHERE  elements._id= camps.element_id "+
                         "AND camps.reason_id = reasons._id " +
                         "AND instr( ";
         /** Cursor constructor */
@@ -181,6 +178,72 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
                                     SQLiteCursorDriver driver, String editTable,
                                     SQLiteQuery query) {
                 return new checkBarcodeCursor(db, driver, editTable, query);
+            }
+        }
+        /* Accessor functions -- one per database column */
+        //public long getColReasonsId() { return getLong(getColumnIndexOrThrow("reasons._id")); }
+        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reasons.name")); }
+        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reasons.description")); }
+        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reasons.url")); }
+        public String getColElementsName() { return getString(getColumnIndexOrThrow("elements.name")); }
+        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("elements.description")); }
+        public long getColElementsBarcode() { return getLong(getColumnIndexOrThrow("elements.barcode")); }
+    }
+
+
+    /****************************************************************************************************************
+     ************************************* CURSOR BUSQUEDA DE CADENAS ***********************************************
+     ***************************************************************************************************************/
+
+    /************************************************
+     * EN ESTAS BUSQUEDAS AL BUSCARSE TAMBIEN POR EMPRESA, Y ALGUNAS ESTARAN EN EL BOICOT POR SI MISMAS SE NECESITA
+     *  CREAR UN PRODUCTO QUE SE LLAME TODOS PARA AÑADIR LA EMPRESA A LOS BOICOTTS
+     */
+
+    /** Returns a JobDetailCursor for the specified jobId
+     * @param searchString The String to search
+     */
+    public checkSearchStringCursor checkSearchStringCursor(String searchString) {
+        String sql = checkSearchStringCursor.QUERY + searchString + "%\') " +
+                "OR lower(elements.description) like lower(\'%" + searchString + "%\') " +
+                "OR ( " +
+                    "lower(companies.name) like lower(\'%" + searchString + "%\') " +
+                    "AND elements.company = companies._id ) )" ;
+        SQLiteDatabase d = getReadableDatabase();
+        checkSearchStringCursor c = (checkSearchStringCursor) d.rawQueryWithFactory(
+                new checkSearchStringCursor.Factory(),
+                sql,
+                null,
+                null);
+        c.moveToFirst();
+        return c;
+    }
+
+
+    /**
+     * Provides self-contained query-specific cursor for product/company and if its not fair.
+     * The query and all Accessor methods are in the class.
+     */
+    public static class checkSearchStringCursor extends SQLiteCursor {
+        /** The query for this cursor */
+        private static final String QUERY =
+                "SELECT reasons.*, elements.* "+
+                        "FROM camps, elements, reasons, companies "+
+                        "WHERE  elements._id= camps.element_id "+
+                        "AND camps.reason_id = reasons._id " +
+                        "AND ( lower(elements.name) like lower(\'%";
+        /** Cursor constructor */
+        private checkSearchStringCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
+                                   String editTable, SQLiteQuery query) {
+            super(db, driver, editTable, query);
+        }
+        /** Private factory class necessary for rawQueryWithFactory() call */
+        private static class Factory implements SQLiteDatabase.CursorFactory{
+            @Override
+            public Cursor newCursor(SQLiteDatabase db,
+                                    SQLiteCursorDriver driver, String editTable,
+                                    SQLiteQuery query) {
+                return new checkSearchStringCursor(db, driver, editTable, query);
             }
         }
         /* Accessor functions -- one per database column */

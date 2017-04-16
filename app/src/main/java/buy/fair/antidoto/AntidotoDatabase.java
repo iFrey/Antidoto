@@ -143,7 +143,7 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
      * @param barcode The barcode to check
      */
     public checkBarcodeCursor checkBarcodeCursor(long barcode) {
-        String sql = checkBarcodeCursor.QUERY + barcode + ", elements.barcode ) > 0";
+        String sql = checkBarcodeCursor.QUERY + barcode + ", e.barcode ) > 0";
         SQLiteDatabase d = getReadableDatabase();
         checkBarcodeCursor c = (checkBarcodeCursor) d.rawQueryWithFactory(
                 new checkBarcodeCursor.Factory(),
@@ -161,10 +161,13 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
     public static class checkBarcodeCursor extends SQLiteCursor {
         /** The query for this cursor */
         private static final String QUERY =
-                "SELECT reasons.*, elements.* "+
-                        "FROM camps, elements, reasons "+
-                        "WHERE  elements._id= camps.element_id "+
-                        "AND camps.reason_id = reasons._id " +
+                "SELECT r.name as reason_name, r.description as reason_description, r.url as reason_url, "+
+                        "e.name as element_name, e.description as element_description, e.barcode as element_barcode, " +
+                        "c.name as company_name " +
+                        "FROM camps as ca, elements as e, reasons as r, companies as c "+
+                        "WHERE  e._id= ca.element_id "+
+                        "AND ca.reason_id = r._id " +
+                        "AND c._id = e.company " +
                         "AND instr( ";
         /** Cursor constructor */
         private checkBarcodeCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
@@ -182,12 +185,13 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
         }
         /* Accessor functions -- one per database column */
         //public long getColReasonsId() { return getLong(getColumnIndexOrThrow("reasons._id")); }
-        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reasons.name")); }
-        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reasons.description")); }
-        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reasons.url")); }
-        public String getColElementsName() { return getString(getColumnIndexOrThrow("elements.name")); }
-        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("elements.description")); }
-        public long getColElementsBarcode() { return getLong(getColumnIndexOrThrow("elements.barcode")); }
+        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reason_name")); }
+        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reason_description")); }
+        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reason_url")); }
+        public String getColElementsName() { return getString(getColumnIndexOrThrow("element_name")); }
+        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("element_description")); }
+        public int getColElementsBarcode() { return getInt(getColumnIndexOrThrow("element_barcode")); }
+        public String getColCompanyName() { return  getString(getColumnIndexOrThrow("company_name")); }
     }
 
 
@@ -205,10 +209,10 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
      */
     public checkSearchStringCursor checkSearchStringCursor(String searchString) {
         String sql = checkSearchStringCursor.QUERY + searchString + "%\') " +
-                "OR lower(elements.description) like lower(\'%" + searchString + "%\') " +
+                "OR lower(e.description) like lower(\'%" + searchString + "%\') " +
                 "OR ( " +
-                    "lower(companies.name) like lower(\'%" + searchString + "%\') " +
-                    "AND elements.company = companies._id ) )" ;
+                    "lower(c.name) like lower(\'%" + searchString + "%\') " +
+                    "AND e.company = c._id ) )" ;
         SQLiteDatabase d = getReadableDatabase();
         checkSearchStringCursor c = (checkSearchStringCursor) d.rawQueryWithFactory(
                 new checkSearchStringCursor.Factory(),
@@ -227,11 +231,13 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
     public static class checkSearchStringCursor extends SQLiteCursor {
         /** The query for this cursor */
         private static final String QUERY =
-                "SELECT reasons.*, elements.* "+
-                        "FROM camps, elements, reasons, companies "+
-                        "WHERE  elements._id= camps.element_id "+
-                        "AND camps.reason_id = reasons._id " +
-                        "AND ( lower(elements.name) like lower(\'%";
+                "SELECT r.name as reason_name, r.description as reason_description, r.url as reason_url, "+
+                        "e.name as element_name, e.description as element_description, e.barcode as element_barcode, " +
+                        "c.name as company_name " +
+                        "FROM camps as ca, elements as e, reasons as r, companies as c "+
+                        "WHERE  e._id= ca.element_id "+
+                        "AND ca.reason_id = r._id " +
+                        "AND ( lower(e.name) like lower(\'%";
         /** Cursor constructor */
         private checkSearchStringCursor(SQLiteDatabase db, SQLiteCursorDriver driver,
                                    String editTable, SQLiteQuery query) {
@@ -248,11 +254,13 @@ public class AntidotoDatabase extends SQLiteOpenHelper {
         }
         /* Accessor functions -- one per database column */
         //public long getColReasonsId() { return getLong(getColumnIndexOrThrow("reasons._id")); }
-        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reasons.name")); }
-        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reasons.description")); }
-        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reasons.url")); }
-        public String getColElementsName() { return getString(getColumnIndexOrThrow("elements.name")); }
-        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("elements.description")); }
-        public long getColElementsBarcode() { return getLong(getColumnIndexOrThrow("elements.barcode")); }
+        public String getColReasonsName() { return getString(getColumnIndexOrThrow("reason_name")); }
+        public String getColReasonsDescription() { return getString(getColumnIndexOrThrow("reason_description")); }
+        public String getColReasonsUrl() { return getString(getColumnIndexOrThrow("reason_url")); }
+        public String getColElementsName() { return getString(getColumnIndexOrThrow("element_name")); }
+        public String getColElementsDescription() { return getString(getColumnIndexOrThrow("element_description")); }
+        public int getColElementsBarcode() { return getInt(getColumnIndexOrThrow("element_barcode")); }
+        public String getColCompanyName() { return  getString(getColumnIndexOrThrow("company_name")); }
+
     }
 }

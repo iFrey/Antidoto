@@ -8,16 +8,20 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
 
     private EditText textSearchString;
+    private ListView resultadosLV;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,12 +46,16 @@ public class MainActivity extends AppCompatActivity {
 
         textSearchString = (EditText) findViewById(R.id.searchString);
 
-        AntidotoDatabase db = new AntidotoDatabase(this);
+        resultadosLV = (ListView) findViewById(R.id.resultsLV);
 
+        List resultados = new ArrayList();
+        this.resultadosLV.setAdapter(new ResultAdapter(this, resultados));
+
+        AntidotoDatabase db = new AntidotoDatabase(this);
         //db.getReadableDatabase();
         //Fast tests
         AntidotoDatabase.checkBarcodeCursor cursor = db.checkBarcodeCursor(978156);
-        if (cursor.getCount()>0) {
+        /*if (cursor.getCount()>0) {
             Toast.makeText(this, "Ha encontrado algo en BD!", Toast.LENGTH_LONG).show();
         }else{
             Toast.makeText(this, "Pos no encontro nada :(", Toast.LENGTH_LONG).show();
@@ -57,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(this, "Ha encontrado algo en BD, y no deberia", Toast.LENGTH_LONG).show();
         }else{
             Toast.makeText(this, "Pos no encontro nada, como deberia", Toast.LENGTH_LONG).show();
-        }
+        }*/
 
     }
 
@@ -70,9 +78,30 @@ public class MainActivity extends AppCompatActivity {
 
         AntidotoDatabase.checkSearchStringCursor cursor = db.checkSearchStringCursor(textSearchString.getText().toString());
         if (cursor.getCount()>0) {
-            Toast.makeText(this, "Ha encontrado algo en BD!", Toast.LENGTH_LONG).show();
+
+            List resultados = new ArrayList();
+
+            try {
+                for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                    resultados.add(new Result(cursor.getColReasonsName(),
+                            cursor.getColReasonsDescription(),
+                            cursor.getColReasonsUrl(),
+                            cursor.getColElementsName(),
+                            cursor.getColElementsDescription(),
+                            cursor.getColElementsBarcode(),
+                            cursor.getColCompanyName()));
+                }
+            } finally {
+                cursor.close();
+            }
+
+            this.resultadosLV.setAdapter(new ResultAdapter(this, resultados));
+            resultadosLV.setVisibility(View.VISIBLE);
+            //Toast.makeText(this, "Ha encontrado algo en BD!", Toast.LENGTH_LONG).show();
+
         }else{
-            Toast.makeText(this, "Pos no encontro nada :(", Toast.LENGTH_LONG).show();
+            resultadosLV.setVisibility(View.GONE);
+            //Toast.makeText(this, "Pos no encontro nada :(", Toast.LENGTH_LONG).show();
         }
     }
 
@@ -82,9 +111,36 @@ public class MainActivity extends AppCompatActivity {
         IntentResult result = IntentIntegrator.parseActivityResult(requestCode, resultCode, data);
         if(result != null) {
             if(result.getContents() == null) {
-                Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
+                resultadosLV.setVisibility(View.GONE);
+                //Toast.makeText(this, "Cancelled", Toast.LENGTH_LONG).show();
             } else {
-                Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
+                AntidotoDatabase db = new AntidotoDatabase(this);
+                AntidotoDatabase.checkBarcodeCursor cursor = db.checkBarcodeCursor(978156);
+                if (cursor.getCount()>0) {
+                    List resultados = new ArrayList();
+
+                    try {
+                        for (cursor.moveToFirst(); !cursor.isAfterLast(); cursor.moveToNext()) {
+                            resultados.add(new Result(cursor.getColReasonsName(),
+                                    cursor.getColReasonsDescription(),
+                                    cursor.getColReasonsUrl(),
+                                    cursor.getColElementsName(),
+                                    cursor.getColElementsDescription(),
+                                    cursor.getColElementsBarcode(),
+                                    cursor.getColCompanyName()));
+                        }
+                    } finally {
+                        cursor.close();
+                    }
+
+                    this.resultadosLV.setAdapter(new ResultAdapter(this, resultados));
+                    resultadosLV.setVisibility(View.VISIBLE);
+                    //Toast.makeText(this, "Ha encontrado algo en BD!", Toast.LENGTH_LONG).show();
+                }else{
+                    resultadosLV.setVisibility(View.GONE);
+                    //Toast.makeText(this, "Pos no encontro nada :(", Toast.LENGTH_LONG).show();
+                }
+                //Toast.makeText(this, "Scanned: " + result.getContents(), Toast.LENGTH_LONG).show();
             }
         } else {
             super.onActivityResult(requestCode, resultCode, data);

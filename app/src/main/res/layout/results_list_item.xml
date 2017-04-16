@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginTop="15dp"
+    android:paddingTop="0dp">
+
+    <TextView
+        android:id="@+id/companyTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Company"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_alignTop="@+id/productTV"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/productLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Product:"
+        android:layout_alignBaseline="@+id/productTV"
+        android:layout_alignBottom="@+id/productTV"
+        android:layout_toRightOf="@+id/companyTV"
+        android:layout_toEndOf="@+id/companyTV"
+        android:layout_marginLeft="57dp"
+        android:layout_marginStart="57dp" />
+
+    <TextView
+        android:id="@+id/productTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Sample product"
+        android:layout_marginTop="16dp"
+        android:layout_below="@+id/descriptionReasonTV"
+        android:layout_toRightOf="@+id/productLabel"
+        android:layout_toEndOf="@+id/productLabel"
+        android:layout_marginLeft="12dp"
+        android:layout_marginStart="12dp" />
+
+    <TextView
+        android:id="@+id/descriptionReasonTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="An example large description of the reason. Under this ther should be a link."
+        android:layout_below="@+id/reasonTV"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/reasonTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Reason"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true" />
+
+    <TextView
+        android:id="@+id/linkTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_alignParentRight="true"
+        android:layout_alignParentTop="true"
+        android:text="TextView"
+        tools:text="http://google.com" />
+
+    <TextView
+        android:id="@+id/descriptionTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/companyTV"
+        android:text="TextView"
+        tools:text="An example large description of the product or the company. Under this ther should be a link." />
+
+    <TextView
+        android:id="@+id/barcodeLabel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/reasonTV"
+        android:layout_alignRight="@+id/reasonTV"
+        android:layout_below="@+id/descriptionTV"
+        android:text="Barcode:" />
+
+    <TextView
+        android:id="@+id/barcodeTV"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/descriptionTV"
+        android:layout_toEndOf="@+id/barcodeLabel"
+        android:layout_toRightOf="@+id/barcodeLabel"
+        android:text="SampleBarcode" />
+
+</RelativeLayout>
